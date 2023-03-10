@@ -1,5 +1,8 @@
 import { classNames } from "@/utils";
-import { LockClosedIcon } from "@heroicons/react/24/outline";
+import {
+  ExclamationTriangleIcon,
+  LockClosedIcon,
+} from "@heroicons/react/24/outline";
 import { useForm } from "react-hook-form";
 import {
   Create_Post as CreateUser,
@@ -11,8 +14,9 @@ import { debounce } from "lodash";
 import React, { useCallback, useEffect, useState } from "react";
 import Modals from "@/components/Modals";
 import { useNavigate } from "react-router-dom";
-import Logo from '@/assets/logo.png'
-interface ILoginProps { }
+import Logo from "@/assets/logo.png";
+import { Dialog } from "@headlessui/react";
+interface ILoginProps {}
 
 type Inputs = {
   email: string;
@@ -53,14 +57,15 @@ const Login: React.FC<ILoginProps> = () => {
   /**防抖处理 */
   const onSubmit = useCallback(
     debounce(async (event: Inputs) => {
-      const { data } = await LoginUser(event);
+      const requestResults = await LoginUser(event);
+      const { data } = requestResults;
       if (data.success) {
-        navigate("/home");
-        localStorage.setItem("token", data.data.token);
+        localStorage.setItem("token", data.data.access_token);
         toast.success(`欢迎回来~😘`, {
           autoClose: 2000,
           pauseOnFocusLoss: false,
         });
+        navigate("/home");
       }
       if (data.message === "用户不存在" && !data.success) {
         setOpenModal(true);
@@ -80,12 +85,12 @@ const Login: React.FC<ILoginProps> = () => {
       <ToastContainer position="top-center" />
       <Modals
         state={opneModal}
-        content={"你要创建此账户信息吗？"}
-        title={"创建用户提醒"}
-        type={"warning"}
+        type="error"
         onOK={Create}
         onClose={() => setOpenModal(false)}
         onCancel={async () => setOpenModal(false)}
+        title={"用户创建提醒"}
+        content={"此账户没有被注册过想要用此邮箱创建用户吗？"}
       />
       <div className=" lg:hidden"></div>
       <div className=" w-full p-4 rounded-t-3xl lg:rounded-none bg-white h-auto shadow-xl">

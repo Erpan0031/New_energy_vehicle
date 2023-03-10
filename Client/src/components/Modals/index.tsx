@@ -1,21 +1,23 @@
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, ReactNode, useEffect, useRef, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
+import { classNames } from "@/utils";
 import {
   ExclamationTriangleIcon,
   InformationCircleIcon,
 } from "@heroicons/react/24/outline";
 interface IModalsProps {
   state: boolean;
-  content: string;
+  children?: ReactNode;
+  type: "error" | "success";
   title: string;
-  type: "warning" | "info" | "error";
+  content: string;
   onOK: () => void;
   onClose: () => void;
   onCancel: () => {};
 }
 
 const Modals: React.FC<IModalsProps> = (Props: IModalsProps) => {
-  const { content, title, type, state, onClose, onOK, onCancel } = Props;
+  const { state, type, title, content, onClose, onOK, onCancel } = Props;
   const cancelButtonRef = useRef(null);
   return (
     <Transition.Root show={state} as={Fragment}>
@@ -51,11 +53,24 @@ const Modals: React.FC<IModalsProps> = (Props: IModalsProps) => {
               <Dialog.Panel className="relative w-full md:w-none transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
                 <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                   <div className="sm:flex sm:items-start">
-                    <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-green-100 sm:mx-0 sm:h-10 sm:w-10">
-                      <ExclamationTriangleIcon
-                        className="h-6 w-6 text-green-600"
-                        aria-hidden="true"
-                      />
+                    <div
+                      className={classNames(
+                        type === "error"
+                          ? "mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10"
+                          : "mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-green-100 sm:mx-0 sm:h-10 sm:w-10"
+                      )}
+                    >
+                      {type === "error" ? (
+                        <ExclamationTriangleIcon
+                          className="h-6 w-6 text-red-600"
+                          aria-hidden="true"
+                        />
+                      ) : (
+                        <InformationCircleIcon
+                          className="h-6 w-6 text-green-600"
+                          aria-hidden="true"
+                        />
+                      )}
                     </div>
                     <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                       <Dialog.Title
@@ -73,14 +88,22 @@ const Modals: React.FC<IModalsProps> = (Props: IModalsProps) => {
                 <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
                   <button
                     type="button"
-                    className="inline-flex w-full justify-center rounded-md border border-transparent bg-green-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
+                    className={classNames(
+                      type === "error"
+                        ? "inline-flex w-full justify-center rounded-md border border-transparent px-4  py-2 text-base font-medium text-white shadow-sm  focus:outline-none focus:ring-2  focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm hover:bg-red-700 focus:ring-red-500 bg-red-600"
+                        : "inline-flex w-full justify-center rounded-md border border-transparent px-4  py-2 text-base font-medium text-white shadow-sm  focus:outline-none focus:ring-2  focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm hover:bg-green-700 focus:ring-green-500 bg-green-600"
+                    )}
                     onClick={() => onOK()}
                   >
                     确定
                   </button>
                   <button
                     type="button"
-                    className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                    className={
+                      type === "error"
+                        ? "mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                        : "mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                    }
                     onClick={() => onCancel()}
                     ref={cancelButtonRef}
                   >
