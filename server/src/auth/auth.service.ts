@@ -7,10 +7,13 @@ import { User } from './interfaces/user.interface';
 import { encryptPassword, makeSalt } from 'src/utils/cryptogram.util';
 import * as moment from 'moment';
 import { randomUUID } from 'crypto';
+import { JwtService } from '@nestjs/jwt';
 @Injectable()
 export class AuthService {
-  jwtService: any;
-  constructor(@Inject('USER_MODEL') private userModel: Model<User>) {}
+  constructor(
+    @Inject('USER_MODEL') private userModel: Model<User>,
+    private jwtService: JwtService,
+  ) {}
   // 校验注册信息
   async checkRegisterForm(createAuthDto: CreateAuthDto) {
     const findUser = await this.userModel.findOne({
@@ -44,28 +47,33 @@ export class AuthService {
       updateTime: createTime,
     };
   }
-  async certificate(user: User) {
+  async certificate(user: User, expirationTime: string) {
     const payload = {
       id: user.id,
       name: user.name,
       email: user.email,
     };
-    const token = this.jwtService.sign(payload);
+    const token = this.jwtService.sign(payload, { expiresIn: expirationTime });
     return token;
   }
   // 登录用户
   async login(loginAuthDto: LoginAuthDto) {
-    const { email, password } = loginAuthDto;
+    const { email, password, rememberme } = loginAuthDto;
     const user = await this.userModel.findOne({ email: email });
     if (!user) {
-      throw new NotFoundException('用户不存在');
+      throw new NotFoundException({
+        message: '用户不存在',
+        Code: 101,
+      });
     }
     const { password: dbPassword, salt } = user;
     const currentHashPassword = encryptPassword(password, salt);
     if (currentHashPassword !== dbPassword) {
       throw new NotFoundException('密码错误');
     }
-    const token = await this.certificate(user);
+    const expiresIn = rememberme ? '15d' : '1h';
+    const token = await this.certificate(user, expiresIn);
+
     return {
       access_token: token,
     };
@@ -81,6 +89,16 @@ export class AuthService {
 
   findAll() {
     return `This action returns all auth`;
+  }
+
+  async getuserinfo(userinfo: User) {
+    const user = await this.userModel.findOne({ _id: userinfo.id });
+    return {
+      name: user.name,
+      email: user.email,
+      createTime: user.createTime,
+      updateTime: user.updateTime,
+    };
   }
   // 查询用户
   findOne(id: number) {
