@@ -72,6 +72,10 @@ export class AuthService {
       throw new NotFoundException('密码错误');
     }
     const expiresIn = rememberme ? '15d' : '1h';
+    console.log(
+      '🚀 ~ file: auth.service.ts:75 ~ AuthService ~ login ~ expiresIn:',
+      expiresIn,
+    );
     const token = await this.certificate(user, expiresIn);
 
     return {
@@ -98,6 +102,8 @@ export class AuthService {
       email: user.email,
       createTime: user.createTime,
       updateTime: user.updateTime,
+      avatarUrl: 
+        'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
     };
   }
   // 查询用户

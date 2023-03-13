@@ -5,12 +5,9 @@ import { EffectFade, Autoplay } from "swiper";
 import "swiper/css";
 import "swiper/css/autoplay";
 import TeaslaCar from "@/assets/tesla/Tesla_model3_black.png";
-import ProductLists from "@/components/ProductLists";
-import FeatureSections from "./components/Marketing/Page_Sections/Feature_Sections";
-import HeaderSections from "./components/Marketing/Page_Sections/Header_Sections";
-import PricingSections from "./components/Marketing/Page_Sections/Pricing_Sections";
-import LogoClouds from "./components/Marketing/Page_Sections/Logo_Clouds";
 import Navigation from "@/components/Navigation";
+import { useAppSelector } from "@/hooks/hooks";
+import Pageone from "./components/page/Pageone";
 interface IHomeProps {}
 
 const curtainContent: any = [
@@ -40,10 +37,10 @@ const curtainContent: any = [
 ];
 
 const Home: React.FunctionComponent<IHomeProps> = (props) => {
-  
+
   return (
     <div className="">
-      <Navigation className="w-full"/>
+      <Navigation className="w-full" />
       <div className="w-full">
         <Swiper
           loop={true}
@@ -62,19 +59,8 @@ const Home: React.FunctionComponent<IHomeProps> = (props) => {
             </SwiperSlide>
           ))}
         </Swiper>
+        <Pageone />
       </div>
-      {/* <div>
-        <PricingSections />
-      </div>
-      <div className="">
-        <FeatureSections />
-      </div>
-      <div>
-        <HeaderSections />
-      </div>
-      <div>
-        <LogoClouds />
-      </div> */}
     </div>
   );
 };
