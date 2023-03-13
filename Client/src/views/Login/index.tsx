@@ -1,8 +1,4 @@
-import { classNames } from "@/utils";
-import {
-  ExclamationTriangleIcon,
-  LockClosedIcon,
-} from "@heroicons/react/24/outline";
+import { LockClosedIcon } from "@heroicons/react/24/outline";
 import { useForm } from "react-hook-form";
 import {
   Create_Post as CreateUser,
@@ -15,13 +11,12 @@ import React, { useCallback, useEffect, useState } from "react";
 import Modals from "@/components/Modals";
 import { useNavigate } from "react-router-dom";
 import Logo from "@/assets/logo.png";
-import { Dialog } from "@headlessui/react";
 interface ILoginProps {}
 
 type Inputs = {
   email: string;
   password: string;
-  rememberMe: boolean;
+  rememberme: boolean;
 };
 
 const Login: React.FC<ILoginProps> = () => {
@@ -35,8 +30,31 @@ const Login: React.FC<ILoginProps> = () => {
     getValues,
   } = useForm<Inputs>();
 
+  const login = async (user: Inputs) => {
+    const requestResults = await LoginUser(user);
+    const { data } = requestResults;
+    if (data.success) {
+      localStorage.setItem("token", data.data.access_token);
+      toast.success(`欢迎回来~😘`, {
+        autoClose: 2000,
+        pauseOnFocusLoss: false,
+      });
+      navigate("/home");
+    }
+    if (data.message === "用户不存在" && !data.success) {
+      setOpenModal(true);
+    }
+    if (data.message === "密码错误" && !data.success) {
+      toast.error(data.message, {
+        autoClose: 2000,
+        pauseOnFocusLoss: false,
+      });
+    }
+  };
   const Create = async () => {
-    const { email, password } = getValues();
+    const user = getValues();
+    const { email, password } = user;
+
     const { data }: any = await CreateUser({
       email,
       password,
@@ -47,38 +65,15 @@ const Login: React.FC<ILoginProps> = () => {
         pauseOnFocusLoss: false,
       });
     }
-    toast.success(`欢迎来到易车购平台~${data.data.email}~😘`, {
+    toast.success(`注册成功！`, {
       autoClose: 2000,
       pauseOnFocusLoss: false,
     });
+    login(user);
     setOpenModal(false);
-    navigate("/home");
   };
   /**防抖处理 */
-  const onSubmit = useCallback(
-    debounce(async (event: Inputs) => {
-      const requestResults = await LoginUser(event);
-      const { data } = requestResults;
-      if (data.success) {
-        localStorage.setItem("token", data.data.access_token);
-        toast.success(`欢迎回来~😘`, {
-          autoClose: 2000,
-          pauseOnFocusLoss: false,
-        });
-        navigate("/home");
-      }
-      if (data.message === "用户不存在" && !data.success) {
-        setOpenModal(true);
-      }
-      if (data.message === "密码错误" && !data.success) {
-        toast.error(data.message, {
-          autoClose: 2000,
-          pauseOnFocusLoss: false,
-        });
-      }
-    }, 1000),
-    []
-  );
+  const onSubmit = useCallback(debounce(login, 1000), []);
 
   return (
     <div className="w-full  h-screen flex flex-col lg:flex-row justify-between bg-slate-100 ">
@@ -161,7 +156,7 @@ const Login: React.FC<ILoginProps> = () => {
                 <div className="flex items-center">
                   <input
                     type="checkbox"
-                    {...register("rememberMe")}
+                    {...register("rememberme")}
                     className="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
                   />
                   <label

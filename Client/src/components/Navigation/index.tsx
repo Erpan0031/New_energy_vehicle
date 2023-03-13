@@ -5,14 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import {
-  Dialog,
-  Disclosure,
-  Menu,
-  Popover,
-  Tab,
-  Transition,
-} from "@headlessui/react";
+import { Dialog, Menu, Popover, Tab, Transition } from "@headlessui/react";
 import {
   Bars3Icon,
   BellIcon,
@@ -23,33 +16,58 @@ import {
 import { navigation } from "@/components/Navigation/mock/data";
 import { classNames } from "@/utils/index";
 import logo from "@/assets/logo.png";
+import { useNavigate } from "react-router-dom";
+import { useAppSelector } from "@/hooks/hooks";
 
 type Itarget = MutableRefObject<HTMLParagraphElement | null>;
 interface INavigationProps {
   className?: string | undefined;
   style?: CSSProperties | undefined;
+  userInfo?: {
+    name: string;
+    email: string;
+    avatarUrl: string;
+  };
 }
 // 用户信息
-const user = {
-  name: "Tom Cook",
-  email: "tom@example.com",
-  imageUrl:
-    "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-};
+// const user = {
+//   name: "Tom Cook",
+//   email: "tom@example.com",
+//   imageUrl:
+//     "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
+// };
 // 用户菜单设置
-const userNavigation = [
-  { name: "您的个人资料", href: "#" },
-  { name: "设置", href: "#" },
-  { name: "登出", href: "#" },
-];
 
-const Navigation: React.FunctionComponent<INavigationProps> = ({
-  style,
-  className,
-}) => {
+const Navigation: React.FC<INavigationProps> = ({ className, userInfo }) => {
   const [open, setOpen] = useState(false);
   const [ishow, setIshow] = useState(false);
   const Banners = useRef<HTMLParagraphElement>(null);
+  const navigate = useNavigate();
+  const Selector = useAppSelector((state) => {
+    return state.users;
+  });
+  const user = Selector;
+  const userNavigation = [
+    {
+      name: "您的个人资料",
+      event: () => {
+        navigate("/about");
+      },
+    },
+    {
+      name: "设置",
+      event: () => {
+        navigate("/about");
+      },
+    },
+    {
+      name: "登出",
+      event: () => {
+        localStorage.removeItem("token");
+        navigate("/home");
+      },
+    },
+  ];
 
   const isShowBanners = (target: Itarget) => {
     if (target.current) {
@@ -404,67 +422,73 @@ const Navigation: React.FunctionComponent<INavigationProps> = ({
               </Popover.Group>
 
               <div className="ml-auto flex items-center">
-                <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
-                  <a
-                    href="#"
-                    className="text-sm font-medium text-gray-700 hover:text-gray-800"
-                  >
-                    登录用户
-                  </a>
-                  <span className="h-6 w-px bg-gray-200" aria-hidden="true" />
-                  <a
-                    href="#"
-                    className="text-sm font-medium text-gray-700 hover:text-gray-800"
-                  >
-                    创建用户
-                  </a>
-                </div>
-                {/* 用户头像 */}
-                <div className="flex items-center">
-                  <Menu as="div" className="relative ml-3">
-                    <div>
-                      <Menu.Button className="flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
-                        <span className="sr-only">Open user menu</span>
-                        <img
-                          className="h-8 w-8 rounded-full"
-                          src={user.imageUrl}
-                          alt=""
-                        />
-                      </Menu.Button>
-                    </div>
-                    <Transition
-                      as={Fragment}
-                      enter="transition ease-out duration-100"
-                      enterFrom="transform opacity-0 scale-95"
-                      enterTo="transform opacity-100 scale-100"
-                      leave="transition ease-in duration-75"
-                      leaveFrom="transform opacity-100 scale-100"
-                      leaveTo="transform opacity-0 scale-95"
+                {!user && (
+                  <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
+                    <a
+                      href="#"
+                      className="text-sm font-medium text-gray-700 hover:text-gray-800"
                     >
-                      <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                        {userNavigation.map((item) => (
-                          <Menu.Item key={item.name}>
-                            {({ active }) => (
-                              <a
-                                href={item.href}
-                                className={classNames(
-                                  active ? "bg-gray-100" : "",
-                                  "block px-4 py-2 text-sm text-gray-700"
-                                )}
-                              >
-                                {item.name}
-                              </a>
-                            )}
-                          </Menu.Item>
-                        ))}
-                      </Menu.Items>
-                    </Transition>
-                  </Menu>
-                  <div className="flex flex-col ml-2 w-14 lg:w-16 ">
-                    <span className=" truncate  text-sm">xxxxxxxxxxxxxx</span>
-                    <span className=" text-gray-400 text-xs">xxxx</span>
+                      登录用户
+                    </a>
+                    <span className="h-6 w-px bg-gray-200" aria-hidden="true" />
+                    <a
+                      href="#"
+                      className="text-sm font-medium text-gray-700 hover:text-gray-800"
+                    >
+                      创建用户
+                    </a>
                   </div>
-                </div>
+                )}
+                {/* 用户头像 */}
+                {user && (
+                  <div className="flex items-center">
+                    <Menu as="div" className="relative ml-3">
+                      <div>
+                        <Menu.Button className="flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+                          <span className="sr-only">Open user menu</span>
+                          <img
+                            className="h-8 w-8 rounded-full"
+                            src={user.avatarUrl}
+                            alt=""
+                          />
+                        </Menu.Button>
+                      </div>
+                      <Transition
+                        as={Fragment}
+                        enter="transition ease-out duration-100"
+                        enterFrom="transform opacity-0 scale-95"
+                        enterTo="transform opacity-100 scale-100"
+                        leave="transition ease-in duration-75"
+                        leaveFrom="transform opacity-100 scale-100"
+                        leaveTo="transform opacity-0 scale-95"
+                      >
+                        <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                          {userNavigation.map((item) => (
+                            <Menu.Item key={item.name}>
+                              {({ active }) => (
+                                <div
+                                  onClick={() => item.event && item.event()}
+                                  className={classNames(
+                                    active ? "bg-gray-100" : "",
+                                    "block px-4 py-2 text-sm text-gray-700 cursor-pointer"
+                                  )}
+                                >
+                                  {item.name}
+                                </div>
+                              )}
+                            </Menu.Item>
+                          ))}
+                        </Menu.Items>
+                      </Transition>
+                    </Menu>
+                    <div className=" flex-col ml-2 w-14 lg:w-32 truncate hidden md:flex ">
+                      <span className=" text-sm ">{user.name}</span>
+                      <span className=" text-gray-400 text-xs">
+                        {user.email}
+                      </span>
+                    </div>
+                  </div>
+                )}
 
                 {/* Search */}
                 <div className="flex lg:ml-6">

@@ -5,7 +5,6 @@ import "./main.css";
 import { BrowserRouter, HashRouter } from "react-router-dom";
 import store from "@/store/store";
 import { Provider } from "react-redux";
-
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <BrowserRouter>
