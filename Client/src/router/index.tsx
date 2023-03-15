@@ -1,27 +1,19 @@
-import React from "react";
-import { useRoutes } from "react-router-dom";
+import { Navigate, Route, useRoutes } from "react-router-dom";
 import LazyLoad from "./LazyLoad";
 import AuthComponent from "./AuthComponent";
-import Layout from "@/layout";
-
+import Layout from "@/layout/index";
 const IndexRouter = () => {
   const routerElement = useRoutes([
     //  重定向操作
     {
       path: "/",
-      element: (
-        <AuthComponent>
-          <Layout />
-        </AuthComponent>
-      ),
-
+      element: <Layout />,
       children: [
         //  二级路由的重定向
         {
           path: "/",
           element: LazyLoad("/Home"),
         },
-
         {
           path: "home",
           element: LazyLoad("/Home"),
@@ -41,10 +33,6 @@ const IndexRouter = () => {
       path: "/login",
       element: LazyLoad("/Login"),
     },
-    // {
-    //   path: "loyout",
-    //   element: LazyLoad("/loyout"),
-    // },
   ]);
 
   return routerElement;
